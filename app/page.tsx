@@ -296,7 +296,7 @@ function Hero() {
             marginBottom: "1.75rem",
           }}
         >
-          We build revenue-driven companies with operational leverage.
+          A venture and operational infrastructure company that scales execution and revenue for founders and operators.
         </h1>
 
         <p
@@ -313,22 +313,6 @@ function Hero() {
           Operon Group converts strategic signals into governed frameworks, coordinated operations, and execution environments built for long-term growth and leverage.
         </p>
 
-        <div className="reveal reveal-delay-3" style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-          <a
-            href="#ventures"
-            onClick={(e) => { e.preventDefault(); scrollTo("#ventures"); }}
-            className="btn-primary"
-          >
-            View Ventures
-          </a>
-          <a
-            href="#contact"
-            onClick={(e) => { e.preventDefault(); scrollTo("#contact"); }}
-            className="btn-ghost"
-          >
-            Partner Inquiry
-          </a>
-        </div>
       </div>
 
       {/* Bottom rule */}
