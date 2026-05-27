@@ -11,6 +11,8 @@ export const metadata: Metadata = {
     url: "https://theoperongroup.com",
     siteName: "Operon Group",
     type: "website",
+  icons: {
+    icon: "/favicon.svg",
   },
 };
 
