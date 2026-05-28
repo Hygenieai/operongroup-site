@@ -31,7 +31,7 @@ const ALL_VENTURES = [
   {
     name: "Replaunch.io",
     tag: "Career Intelligence Platform",
-    year: "2024",
+    year: "2026",
     status: "Live Beta",
     description:
       "Job search intelligence platform. AI-powered resume and job match engine for candidates re-entering or repositioning in the market.",
@@ -41,7 +41,7 @@ const ALL_VENTURES = [
   {
     name: "Qube",
     tag: "Productivity & Workflow",
-    year: "2024",
+    year: "2026",
     status: "In Development",
     description:
       "Intelligent workspace infrastructure for modern operators. Structured execution environments built for teams that move fast.",
@@ -51,7 +51,7 @@ const ALL_VENTURES = [
   {
     name: "Bloqworx",
     tag: "Business Infrastructure",
-    year: "2024",
+    year: "2026",
     status: "In Development",
     description:
       "Modular business infrastructure platform. Operational building blocks for companies that need to scale without rebuilding from scratch.",
@@ -923,7 +923,7 @@ function Leadership() {
                   {[
                     { label: "Ventures Led", value: "6" },
                     { label: "Years Building", value: "10+" },
-                    { label: "Est.", value: "2024" },
+                    { label: "Est.", value: "2026" },
                   ].map((stat) => (
                     <div key={stat.label}>
                       <div
