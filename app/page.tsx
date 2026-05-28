@@ -70,7 +70,6 @@ const ALL_VENTURES = [
 const NAV_LINKS = [
   { label: "Ventures", href: "#ventures" },
   { label: "Leadership", href: "#leadership" },
-  { label: "Contact", href: "#contact" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -296,7 +295,7 @@ function Hero() {
             marginBottom: "1.75rem",
           }}
         >
-          A venture and operational infrastructure company that scales execution and revenue for founders and operators.
+          Operational intelligence for scalable infrastructure.
         </h1>
 
         <p
@@ -463,20 +462,19 @@ function VenturesTicker() {
           {/* Header */}
           <div style={{ marginBottom: "4rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem" }}>
             <div>
-              <div className="section-label" style={{ marginBottom: "0.75rem" }}>Portfolio in Motion</div>
               <h2
                 className="reveal"
                 style={{
                   fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "clamp(28px, 3.5vw, 48px)",
+                  fontSize: "clamp(42px, 4vw, 58px)",
                   fontWeight: "normal",
                   color: "#F2EDE4",
-                  lineHeight: 1.15,
-                  letterSpacing: "-0.02em",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.025em",
                   margin: 0,
                 }}
               >
-                Companies we&apos;re building.
+                Portfolio in Motion
               </h2>
             </div>
             <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -938,173 +936,6 @@ function Leadership() {
   );
 }
 
-// ── Contact ───────────────────────────────────────────────────
-function Contact() {
-  const [form, setForm] = useState({ name: "", company: "", email: "", building: "" });
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
-
-  return (
-    <section
-      id="contact"
-      style={{ backgroundColor: "#F2EDE4", padding: "8rem 0" }}
-    >
-      <div
-        style={{ maxWidth: 1440, margin: "0 auto" }}
-        className="px-6 md:px-16"
-      >
-        <div
-          style={{ display: "grid", gridTemplateColumns: "1fr", gap: "5rem" }}
-          className="md:grid-cols-[1fr_1fr]"
-        >
-          {/* Left */}
-          <div>
-            <h2
-              className="reveal"
-              style={{
-                fontFamily: "Georgia, 'Times New Roman', serif",
-                fontSize: "clamp(32px, 4vw, 58px)",
-                fontWeight: "normal",
-                color: "#1C2333",
-                lineHeight: 1.1,
-                letterSpacing: "-0.025em",
-                marginBottom: "2rem",
-              }}
-            >
-              If the execution gap is the problem,
-              <br />
-              we&apos;re the conversation.
-            </h2>
-            <p
-              className="reveal reveal-delay-1"
-              style={{
-                fontFamily: "'Courier New', Courier, monospace",
-                fontSize: 14,
-                color: "#6B7280",
-                lineHeight: 1.85,
-                maxWidth: 460,
-                marginBottom: "2.5rem",
-              }}
-            >
-              We talk to founders, operators, and investors who are serious about building companies that run on systems — not personalities. We move quickly and speak plainly.
-            </p>
-          </div>
-
-          {/* Right — form */}
-          <div className="reveal reveal-delay-2">
-            {submitted ? (
-              <div
-                style={{
-                  padding: "3rem",
-                  border: "1px solid #D9D3C8",
-                  backgroundColor: "#EDE8DF",
-                }}
-              >
-                <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 22, color: "#1C2333", marginBottom: "0.75rem" }}>
-                  Message received.
-                </div>
-                <div style={{ fontFamily: "'Courier New', Courier, monospace", fontSize: 13, color: "#6B7280", lineHeight: 1.8 }}>
-                  We&apos;ll be in touch shortly.
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                {[
-                  { id: "name", label: "Name", type: "text", placeholder: "Your name" },
-                  { id: "company", label: "Company", type: "text", placeholder: "Company name" },
-                  { id: "email", label: "Email", type: "email", placeholder: "your@email.com" },
-                ].map((field) => (
-                  <div key={field.id} style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                    <label
-                      htmlFor={field.id}
-                      style={{ fontFamily: "'Courier New', Courier, monospace", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "#8FA3B1" }}
-                    >
-                      {field.label}
-                    </label>
-                    <input
-                      id={field.id}
-                      type={field.type}
-                      required
-                      placeholder={field.placeholder}
-                      value={(form as Record<string, string>)[field.id]}
-                      onChange={(e) => setForm({ ...form, [field.id]: e.target.value })}
-                      style={{
-                        fontFamily: "'Courier New', Courier, monospace",
-                        fontSize: 13,
-                        color: "#1C2333",
-                        backgroundColor: "transparent",
-                        border: "none",
-                        borderBottom: "1px solid #D9D3C8",
-                        padding: "0.6rem 0",
-                        outline: "none",
-                        width: "100%",
-                        transition: "border-color 180ms ease-out",
-                      }}
-                      onFocus={(e) => (e.target.style.borderBottomColor = "#1C2333")}
-                      onBlur={(e) => (e.target.style.borderBottomColor = "#D9D3C8")}
-                    />
-                  </div>
-                ))}
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                  <label htmlFor="building" style={{ fontFamily: "'Courier New', Courier, monospace", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "#8FA3B1" }}>
-                    What are you building?
-                  </label>
-                  <textarea
-                    id="building"
-                    required
-                    rows={4}
-                    placeholder="Describe what you're working on..."
-                    value={form.building}
-                    onChange={(e) => setForm({ ...form, building: e.target.value })}
-                    style={{
-                      fontFamily: "'Courier New', Courier, monospace",
-                      fontSize: 13,
-                      color: "#1C2333",
-                      backgroundColor: "transparent",
-                      border: "1px solid #D9D3C8",
-                      padding: "0.75rem",
-                      outline: "none",
-                      width: "100%",
-                      resize: "vertical",
-                      transition: "border-color 180ms ease-out",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#1C2333")}
-                    onBlur={(e) => (e.target.style.borderColor = "#D9D3C8")}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  style={{
-                    fontFamily: "'Courier New', Courier, monospace",
-                    fontSize: 12,
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                    padding: "14px 32px",
-                    backgroundColor: "#1C2333",
-                    color: "#F2EDE4",
-                    border: "1px solid #1C2333",
-                    cursor: "pointer",
-                    transition: "all 180ms ease-out",
-                    alignSelf: "flex-start",
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#8C6A3F"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#8C6A3F"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1C2333"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#1C2333"; }}
-                >
-                  Start the Conversation
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ── Footer ────────────────────────────────────────────────────
 function Footer() {
   return (
@@ -1163,7 +994,6 @@ export default function Page() {
       <DefinitionStrip />
       <VenturesTicker />
       <Leadership />
-      <Contact />
       <Footer />
     </div>
   );
