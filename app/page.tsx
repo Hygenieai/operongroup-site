@@ -1,5 +1,8 @@
 "use client";
 
+// Keep this prompt handy for commits/pushes:
+// git add .; git commit -m "update"; git push
+
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+// Keep this prompt handy for commits/pushes:
+// git add .; git commit -m "update"; git push
+
 export const metadata: Metadata = {
   title: "Operon Group — Venture & Operational Infrastructure",
   description:
