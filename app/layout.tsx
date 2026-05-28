@@ -4,10 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Operon Group — Venture & Operational Infrastructure",
   description:
-    "Operon Group is a venture and operational infrastructure company that builds revenue-driven companies with operational leverage. Dallas, TX.",
+    "Operon Group is a venture and operational infrastructure company that scales execution and revenue.",
   openGraph: {
     title: "Operon Group",
-    description: "We build operational companies that perform without the founder in the room.",
+    description: "A venture and operational infrastructure company that scales execution and revenue.",
     url: "https://theoperongroup.com",
     siteName: "Operon Group",
     type: "website",
