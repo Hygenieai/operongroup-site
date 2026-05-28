@@ -10,6 +10,19 @@ export default function PrivacyPage() {
       }}
     >
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <nav style={{ marginBottom: "2rem" }}>
+          <a
+            href="/"
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(14px, 1.25vw, 16px)",
+              color: "#1C2333",
+              textDecoration: "none",
+            }}
+          >
+            ← Operon Group
+          </a>
+        </nav>
         <header style={{ marginBottom: "3rem" }}>
           <p style={{ textTransform: "uppercase", letterSpacing: "0.2em", fontSize: 12, color: "#6B7280", marginBottom: "0.75rem" }}>
             Privacy Policy
