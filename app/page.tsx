@@ -330,6 +330,51 @@ function Hero() {
   );
 }
 
+// ── What We Do ─────────────────────────────────────────────────
+function WhatWeDo() {
+  return (
+    <section
+      style={{
+        backgroundColor: "#F2EDE4",
+        padding: "6rem 0",
+      }}
+    >
+      <div
+        style={{ maxWidth: 1440, margin: "0 auto" }}
+        className="px-6 md:px-16"
+      >
+        <div style={{ maxWidth: 760 }}>
+          <h2
+            className="reveal"
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(36px, 4vw, 52px)",
+              fontWeight: "normal",
+              color: "#1C2333",
+              lineHeight: 1.1,
+              letterSpacing: "-0.025em",
+              marginBottom: "1.5rem",
+            }}
+          >
+            What We Do
+          </h2>
+          <p
+            className="reveal reveal-delay-1"
+            style={{
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: "clamp(14px, 1.4vw, 18px)",
+              color: "#1C2333",
+              lineHeight: 1.85,
+            }}
+          >
+            Operon Group is an operational intelligence firm. We embed into ventures and organizations to capture the signals that matter, design the governance frameworks that create consistency, and build the execution environments where performance becomes structural — not dependent on any single person, decision, or effort.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Definition Strip ──────────────────────────────────────────
 function DefinitionStrip() {
   return (
@@ -771,7 +816,7 @@ function Leadership() {
                 letterSpacing: "-0.02em",
               }}
             >
-              The people behind the work.
+              Leadership
             </h2>
           </div>
 
@@ -959,7 +1004,7 @@ function Footer() {
         className="px-6 md:px-16"
       >
         <div style={{ fontFamily: "'Courier New', Courier, monospace", fontSize: 11, letterSpacing: "0.1em", color: "#4B5563" }}>
-          © 2024 The Operon Group LLC. All rights reserved.
+          © 2026 The Operon Group LLC. All rights reserved.
         </div>
         <a
           href="https://www.linkedin.com/in/jake-weber-b03625135/"
@@ -991,6 +1036,7 @@ export default function Page() {
     <div style={{ backgroundColor: "#F2EDE4", minHeight: "100vh" }}>
       <Nav />
       <Hero />
+      <WhatWeDo />
       <DefinitionStrip />
       <VenturesTicker />
       <Leadership />
