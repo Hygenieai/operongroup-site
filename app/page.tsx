@@ -1,353 +1,1049 @@
+"use client";
+
+// Keep this prompt handy for commits/pushes:
+// git add .; git commit -m "update"; git push
+
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { SiteHeader } from "./components/site-header";
 
-const pathways = [
+// ── Data ─────────────────────────────────────────────────────
+const ALL_VENTURES = [
   {
-    number: "01",
-    id: "commercial-real-estate",
-    title: "Commercial Real Estate",
-    line: "Understand the property. Qualify the opportunity.",
+    name: "Spark Consulting, LLC",
+    tag: "Healthcare Consulting & Technology",
+    year: "2022",
+    status: "Live · Revenue",
     description:
-      "We are developing a commercial real estate capability that connects property and ownership research with opportunity qualification and coordinated next steps.",
-    details: [
-      "Property & ownership research",
-      "Opportunity qualification",
-      "Coordinated next steps",
-    ],
-    status: "In development",
-  },
-  {
-    number: "02",
-    id: "technology",
-    title: "Technology",
-    line: "Build around the decision that needs to happen.",
-    description:
-      "Useful products and systems bring relevant information into the flow of work. Our technology direction focuses on specific operating problems, from evaluating a career move to preparing for a better sales conversation.",
-    details: [
-      "Focused product development",
-      "Decision support",
-      "Connected workflows",
-    ],
-    href: "#selected-work",
-    link: "Explore the product examples",
-  },
-  {
-    number: "03",
-    id: "consulting",
-    title: "Consulting",
-    line: "See the operating problem. Organize the next step.",
-    description:
-      "Our consulting approach connects operational diagnosis, executive visibility, and implementation. The aim is to make priorities clear, responsibilities explicit, and the work easier to coordinate.",
-    details: [
-      "Operational diagnosis",
-      "Executive visibility",
-      "Implementation",
-    ],
-    href: "#founder",
-    link: "Meet the founder",
-  },
-];
-
-const products = [
-  {
-    name: "RepLaunch",
-    category: "Career intelligence",
-    description:
-      "A platform for matching experience to sales roles, identifying gaps, and organizing a more focused job search.",
-    href: "https://replaunch.io",
-    domain: "replaunch.io",
+      "Helps dermatology practices optimize revenue, operations, and performance through data-driven consulting and technology infrastructure.",
+    url: "sparkhealthcareconsulting.com",
+    href: "https://sparkhealthcareconsulting.com",
   },
   {
     name: "Hygenie.ai",
-    category: "Sales demo coaching",
+    tag: "Sales Execution & Intelligence",
+    year: "2023",
+    status: "In Development",
     description:
-      "A real-time demo coaching product for founder-led B2B teams, with a public beta-access program.",
+      "Real-time AI coaching overlay for founder-led B2B demos. Detects failure patterns live and surfaces exact corrective language during the call.",
+    url: "hygenieai.com",
     href: "https://hygenieai.com",
-    domain: "hygenieai.com",
+  },
+  {
+    name: "Replaunch.io",
+    tag: "Career Intelligence Platform",
+    year: "2026",
+    status: "Live Beta",
+    description:
+      "Job search intelligence platform. AI-powered resume and job match engine for candidates re-entering or repositioning in the market.",
+    url: "replaunch.io",
+    href: "https://replaunch.io",
+  },
+  {
+    name: "Qube",
+    tag: "Productivity & Workflow",
+    year: "2026",
+    status: "In Development",
+    description:
+      "Intelligent workspace infrastructure for modern operators. Structured execution environments built for teams that move fast.",
+    url: "",
+    href: "",
+  },
+  {
+    name: "Bloqworx",
+    tag: "Business Infrastructure",
+    year: "2026",
+    status: "In Development",
+    description:
+      "Modular business infrastructure platform. Operational building blocks for companies that need to scale without rebuilding from scratch.",
+    url: "bloqworx.com",
+    href: "https://www.bloqworx.com",
+  },
+  {
+    name: "Ascendra Consulting Collective",
+    tag: "Management Consulting",
+    year: "2022",
+    status: "Live · Revenue",
+    description:
+      "High-performance consulting collective for growth-stage companies. Strategy, operations, and execution architecture for businesses at the inflection point.",
+    url: "ascendracollective.com",
+    href: "https://ascendracollective.com",
   },
 ];
 
-export default function HomePage() {
+const NAV_LINKS = [
+  { label: "Ventures", href: "#ventures" },
+  { label: "Leadership", href: "#leadership" },
+];
+
+// ── Helpers ───────────────────────────────────────────────────
+function scrollTo(id: string) {
+  const el = document.getElementById(id.replace("#", ""));
+  if (!el) return;
+  const offset = 72;
+  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top, behavior: "smooth" });
+}
+
+function statusColor(status: string): string {
+  const s = status.toLowerCase();
+  if (s.includes("live") || s.includes("revenue")) return "#22C55E";
+  if (s.includes("beta")) return "#22C55E";
+  if (s.includes("active")) return "#22C55E";
+  return "#8C6A3F";
+}
+
+// ── useReveal hook ────────────────────────────────────────────
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            obs.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+}
+
+// ── Bronze Divider ────────────────────────────────────────────
+function BronzeDivider() {
+  return (
+    <div style={{ height: 2, backgroundColor: "#8C6A3F", width: "100%" }} />
+  );
+}
+
+// ── Nav ───────────────────────────────────────────────────────
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <nav
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        backgroundColor: scrolled ? "#F2EDE4" : "transparent",
+        borderBottom: scrolled ? "1px solid #D9D3C8" : "1px solid transparent",
+        transition: "background-color 300ms ease-out, border-color 300ms ease-out",
+        padding: "0 2rem",
+        height: 64,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <a
+        href="#"
+        onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+        style={{
+          fontFamily: "'Courier New', Courier, monospace",
+          fontSize: 13,
+          letterSpacing: "0.22em",
+          textTransform: "uppercase",
+          color: scrolled ? "#1C2333" : "#F2EDE4",
+          textDecoration: "none",
+          transition: "color 300ms ease-out",
+          fontWeight: "normal",
+        }}
+      >
+        OPERON GROUP
+      </a>
+
+      {/* Desktop links */}
+      <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
+        {NAV_LINKS.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            onClick={(e) => { e.preventDefault(); scrollTo(link.href); }}
+            style={{
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: 11,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: scrolled ? "#6B7280" : "rgba(242,237,228,0.7)",
+              textDecoration: "none",
+              transition: "color 180ms ease-out",
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = scrolled ? "#1C2333" : "#F2EDE4")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = scrolled ? "#6B7280" : "rgba(242,237,228,0.7)")}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+
+      {/* Mobile hamburger */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        style={{
+          display: "none",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: 4,
+        }}
+        className="md:hidden"
+        aria-label="Toggle menu"
+      >
+        <div style={{ width: 22, height: 1, backgroundColor: scrolled ? "#1C2333" : "#F2EDE4", marginBottom: 6 }} />
+        <div style={{ width: 22, height: 1, backgroundColor: scrolled ? "#1C2333" : "#F2EDE4" }} />
+      </button>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div
+          style={{
+            position: "absolute",
+            top: 64,
+            left: 0,
+            right: 0,
+            backgroundColor: "#F2EDE4",
+            borderBottom: "1px solid #D9D3C8",
+            padding: "1.5rem 2rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.25rem",
+          }}
+        >
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={(e) => { e.preventDefault(); scrollTo(link.href); setMobileOpen(false); }}
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                fontSize: 12,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "#6B7280",
+                textDecoration: "none",
+              }}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </nav>
+  );
+}
+
+// ── Hero ──────────────────────────────────────────────────────
+function Hero() {
+  return (
+    <section
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        paddingTop: "clamp(120px, 18vh, 200px)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Background image */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "url('/hero-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "brightness(0.38)",
+          zIndex: 0,
+        }}
+      />
+      {/* Overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(28,35,51,0.55) 0%, rgba(28,35,51,0.2) 60%, rgba(28,35,51,0.7) 100%)",
+          zIndex: 1,
+        }}
+      />
+
+      <div
+        style={{ position: "relative", zIndex: 2, maxWidth: 1440, margin: "0 auto", width: "100%" }}
+        className="px-6 md:px-16"
+      >
+        <h1
+          className="reveal reveal-delay-1"
+          style={{
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: "clamp(42px, 6vw, 76px)",
+            fontWeight: "normal",
+            color: "#F2EDE4",
+            maxWidth: 820,
+            lineHeight: 1.1,
+            letterSpacing: "-0.025em",
+            marginBottom: "1.75rem",
+          }}
+        >
+          Operational intelligence for scalable infrastructure.
+        </h1>
+
+        <p
+          className="reveal reveal-delay-2"
+          style={{
+            fontFamily: "'Courier New', Courier, monospace",
+            fontSize: "clamp(13px, 1.4vw, 16px)",
+            color: "rgba(242,237,228,0.75)",
+            maxWidth: 580,
+            lineHeight: 1.85,
+            marginBottom: "3rem",
+          }}
+        >
+          Operon Group converts strategic signals into governed frameworks, coordinated operations, and execution environments built for long-term growth and leverage.
+        </p>
+
+      </div>
+
+      {/* Bottom rule */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          backgroundColor: "#8C6A3F",
+          zIndex: 3,
+        }}
+      />
+    </section>
+  );
+}
+
+// ── What We Do ─────────────────────────────────────────────────
+function WhatWeDo() {
+  return (
+    <section
+      style={{
+        backgroundColor: "#F2EDE4",
+        padding: "6rem 0",
+      }}
+    >
+      <div
+        style={{ maxWidth: 1440, margin: "0 auto" }}
+        className="px-6 md:px-16"
+      >
+        <div style={{ maxWidth: 760 }}>
+          <h2
+            className="reveal"
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(36px, 4vw, 52px)",
+              fontWeight: "normal",
+              color: "#1C2333",
+              lineHeight: 1.1,
+              letterSpacing: "-0.025em",
+              marginBottom: "1.5rem",
+            }}
+          >
+            What We Do
+          </h2>
+          <p
+            className="reveal reveal-delay-1"
+            style={{
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: "clamp(14px, 1.4vw, 18px)",
+              color: "#1C2333",
+              lineHeight: 1.85,
+            }}
+          >
+            Operon Group is an operational intelligence firm. We embed into ventures and organizations to capture the signals that matter, design the governance frameworks that create consistency, and build the execution environments where performance becomes structural — not dependent on any single person, decision, or effort.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Definition Strip ──────────────────────────────────────────
+function DefinitionStrip() {
+  return (
+    <section
+      style={{
+        backgroundColor: "#111827",
+        padding: "5rem 0",
+      }}
+    >
+      <div
+        style={{ maxWidth: 1440, margin: "0 auto" }}
+        className="px-6 md:px-16"
+      >
+        {/* Top rule */}
+        <div style={{ height: 1, backgroundColor: "#2E3545", marginBottom: "3.5rem" }} />
+
+        {/* Word + phonetic */}
+        <div style={{ display: "flex", alignItems: "baseline", gap: "1.25rem", marginBottom: "1.75rem", flexWrap: "wrap" }}>
+          <span
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(52px, 7vw, 96px)",
+              fontWeight: "normal",
+              color: "#F2EDE4",
+              lineHeight: 1,
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Operon
+          </span>
+          <span
+            style={{
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: 14,
+              color: "#8FA3B1",
+              letterSpacing: "0.04em",
+            }}
+          >
+            /ˈɒp.ə.rɒn/
+          </span>
+          <span
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: 15,
+              color: "#8C6A3F",
+              fontStyle: "italic",
+            }}
+          >
+            n.
+          </span>
+        </div>
+
+        {/* Definition body */}
+        <p
+          style={{
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: "clamp(18px, 2.2vw, 28px)",
+            color: "#E8E3DA",
+            lineHeight: 1.5,
+            maxWidth: 680,
+            marginBottom: "2.5rem",
+            fontWeight: "normal",
+          }}
+        >
+          A coordinated operational structure where multiple functions operate together under shared governance to produce efficient, adaptive outcomes.
+        </p>
+
+        {/* Etymology blockquote */}
+        <blockquote
+          style={{
+            borderLeft: "3px solid #2E3545",
+            paddingLeft: "1.5rem",
+            margin: 0,
+            maxWidth: 560,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(13px, 1.3vw, 15px)",
+              color: "#6B7280",
+              fontStyle: "italic",
+              lineHeight: 1.75,
+              margin: 0,
+            }}
+          >
+            From molecular biology. Adopted because the metaphor is exact — ventures, infrastructure, and execution layers operate together as one regulated unit, not as isolated efforts.
+          </p>
+        </blockquote>
+      </div>
+    </section>
+  );
+}
+
+// ── Ventures Ticker ───────────────────────────────────────────
+function VenturesTicker() {
+  const [active, setActive] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTimer = () => {
+    timerRef.current = setInterval(() => {
+      setActive((prev) => (prev + 1) % ALL_VENTURES.length);
+    }, 3800);
+  };
+
+  useEffect(() => {
+    startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const goTo = (i: number) => {
+    setActive(i);
+    if (timerRef.current) clearInterval(timerRef.current);
+    startTimer();
+  };
+
+  const v = ALL_VENTURES[active];
+  const tickerItems = [...ALL_VENTURES, ...ALL_VENTURES];
+
   return (
     <>
-      <a className="skip-link" href="#main-content">
-        Skip to content
-      </a>
-      <div id="top" />
-      <SiteHeader />
-      <main id="main-content" tabIndex={-1}>
-        <section className="hero" aria-labelledby="hero-heading">
-          <div className="site-shell hero-grid">
-            <div className="hero-copy">
-              <p className="eyebrow">Information. Decisions. Execution.</p>
-              <h1 id="hero-heading">
-                Clarity first.
-                <br />
-                Then coordinated
-                <br />
-                <em>action.</em>
-              </h1>
-              <p className="hero-description">
-                Operon Group turns fragmented information into informed
-                decisions and coordinated execution across commercial real
-                estate, technology, and business operations.
-              </p>
-              <a className="button button-paper" href="#pathways">
-                Explore the pathways <span aria-hidden="true">↘</span>
-              </a>
-            </div>
-            <figure className="hero-image">
-              <div className="hero-photo">
-                <Image
-                  src="/hero-bg.jpg"
-                  alt="A quiet conference room with a long table and large windows"
-                  fill
-                  priority
-                  sizes="(max-width: 760px) 100vw, 42vw"
-                />
-              </div>
-              <figcaption>
-                <span>A practical operating perspective</span>
-                <span aria-hidden="true">01 — 03</span>
-              </figcaption>
-            </figure>
-          </div>
-          <div
-            className="site-shell hero-index"
-            role="navigation"
-            aria-label="Explore Operon pathways"
-          >
-            {pathways.map((pathway) => (
-              <a href={`#${pathway.id}`} key={pathway.id}>
-                <span className="index-number">{pathway.number}</span>
-                <span>{pathway.title}</span>
-                <span className="index-arrow" aria-hidden="true">
-                  ↓
-                </span>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        <section
-          className="approach section-space"
-          id="approach"
-          aria-labelledby="approach-heading"
+      <section
+        id="ventures"
+        style={{ backgroundColor: "#1C2333", padding: "7rem 0 4rem" }}
+      >
+        <div
+          style={{ maxWidth: 1440, margin: "0 auto" }}
+          className="px-6 md:px-16"
         >
-          <div className="site-shell approach-grid">
+          {/* Header */}
+          <div style={{ marginBottom: "4rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem" }}>
             <div>
-              <p className="approach-label">The Operon approach</p>
-              <h2 id="approach-heading">
-                Information matters
-                <br />
-                when it moves
-                <br />
-                the work forward.
+              <h2
+                className="reveal"
+                style={{
+                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontSize: "clamp(42px, 4vw, 58px)",
+                  fontWeight: "normal",
+                  color: "#F2EDE4",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.025em",
+                  margin: 0,
+                }}
+              >
+                Portfolio in Motion
               </h2>
             </div>
-            <ol className="approach-steps">
-              <li>
-                <span className="step-number">01</span>
-                <div>
-                  <h3>Establish the picture.</h3>
-                  <p>
-                    Bring scattered information together. Identify what is
-                    known, what is missing, and what needs a closer look.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <span className="step-number">02</span>
-                <div>
-                  <h3>Make the decision clear.</h3>
-                  <p>
-                    Put evidence and constraints in context so the next move has
-                    a reason behind it.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <span className="step-number">03</span>
-                <div>
-                  <h3>Coordinate what comes next.</h3>
-                  <p>
-                    Connect the decision to priorities, responsibilities, and a
-                    practical sequence of work.
-                  </p>
-                </div>
-              </li>
-            </ol>
-          </div>
-        </section>
-
-        <section
-          className="pathways section-space"
-          id="pathways"
-          aria-labelledby="pathways-heading"
-        >
-          <div className="site-shell">
-            <div className="section-intro">
-              <div>
-                <p className="eyebrow">Our focus</p>
-                <h2 id="pathways-heading">
-                  One company.
-                  <br />
-                  Three ways forward.
-                </h2>
-              </div>
-              <p className="section-description">
-                Different contexts. A common discipline: understand the
-                information, clarify the decision, and coordinate the next step.
-              </p>
-            </div>
-            <div className="pathway-list">
-              {pathways.map((pathway) => (
-                <article
-                  className="pathway"
-                  id={pathway.id}
-                  key={pathway.id}
-                  aria-labelledby={`${pathway.id}-heading`}
-                >
-                  <div className="pathway-title">
-                    <span className="eyebrow pathway-number">
-                      {pathway.number} / Pathway
-                    </span>
-                    <h3 id={`${pathway.id}-heading`}>{pathway.title}</h3>
-                    {pathway.status ? (
-                      <span className="status-label">
-                        <span aria-hidden="true" />
-                        {pathway.status}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="pathway-body">
-                    <h4>{pathway.line}</h4>
-                    <p>{pathway.description}</p>
-                    {pathway.href ? (
-                      <a className="text-link" href={pathway.href}>
-                        {pathway.link} <span aria-hidden="true">↗</span>
-                      </a>
-                    ) : null}
-                  </div>
-                  <ul
-                    className="pathway-details"
-                    aria-label={`${pathway.title} focus areas`}
-                  >
-                    {pathway.details.map((detail) => (
-                      <li key={detail}>{detail}</li>
-                    ))}
-                  </ul>
-                </article>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              {ALL_VENTURES.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  style={{
+                    width: i === active ? 24 : 8,
+                    height: 8,
+                    backgroundColor: i === active ? "#8C6A3F" : "#2E3545",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 300ms ease-out",
+                    padding: 0,
+                  }}
+                  aria-label={`Go to ${ALL_VENTURES[i].name}`}
+                />
               ))}
             </div>
           </div>
-        </section>
 
-        <section
-          className="selected-work section-space"
-          id="selected-work"
-          aria-labelledby="work-heading"
-        >
-          <div className="site-shell">
-            <div className="section-intro">
-              <div>
-                <p className="eyebrow">Supporting work / Technology</p>
-                <h2 id="work-heading">
-                  Focused problems.
-                  <br />
-                  Practical products.
-                </h2>
+          {/* Main card */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "3rem",
+              marginBottom: "3rem",
+            }}
+            className="md:grid-cols-[1fr_1fr]"
+          >
+            {/* Left — company info */}
+            <div
+              style={{
+                borderTop: "2px solid #8C6A3F",
+                paddingTop: "2.5rem",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontSize: 11,
+                  letterSpacing: "0.18em",
+                  color: "#8FA3B1",
+                  textTransform: "uppercase",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {v.year} · {v.tag}
               </div>
-              <p className="section-description">
-                Two product examples, each with its own focus and identity.
-                Explore their public sites for current capabilities and
-                availability.
-              </p>
-            </div>
-            <div className="product-grid">
-              {products.map((product, index) => (
-                <article className="product-card" key={product.name}>
-                  <p className="eyebrow">
-                    0{index + 1} / {product.category}
-                  </p>
-                  <h3>{product.name}</h3>
-                  <p>{product.description}</p>
+
+              <h3
+                style={{
+                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontSize: "clamp(32px, 4vw, 56px)",
+                  fontWeight: "normal",
+                  color: "#F2EDE4",
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.025em",
+                  marginBottom: "1.5rem",
+                  transition: "all 400ms ease-out",
+                }}
+              >
+                {v.href ? (
                   <a
-                    className="product-link"
-                    href={product.href}
+                    href={v.href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    style={{
+                      color: "inherit",
+                      textDecoration: "none",
+                      transition: "color 200ms ease-out",
+                    }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#8C6A3F")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F2EDE4")}
                   >
-                    {product.domain}
-                    <span aria-hidden="true">↗</span>
-                    <span className="sr-only"> (opens in a new tab)</span>
+                    {v.name} <span style={{ fontSize: "0.5em", verticalAlign: "super" }}>↗</span>
                   </a>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+                ) : v.name}
+              </h3>
 
-        <section
-          className="founder section-space"
-          id="founder"
-          aria-labelledby="founder-heading"
-        >
-          <div className="site-shell founder-grid">
-            <div className="founder-image">
-              <Image
-                src="/jake-weber.png"
-                alt="Jake Weber, founder of Operon Group"
-                fill
-                sizes="(max-width: 760px) 100vw, 35vw"
-              />
-            </div>
-            <div className="founder-copy">
-              <p className="eyebrow">Founder / Operon Group</p>
-              <h2 id="founder-heading">Jake Weber</h2>
-              <p className="founder-lead">
-                An operating perspective.
-                <br />A direct line to the work.
-              </p>
-              <p>
-                Jake leads Operon Group’s work across technology and business
-                operations. The focus is practical: make information useful,
-                decisions informed, and execution coordinated.
-              </p>
-              <a
-                className="text-link"
-                href="https://www.linkedin.com/in/jake-weber-b03625135/"
-                target="_blank"
-                rel="noopener noreferrer"
+              <p
+                style={{
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontSize: 14,
+                  color: "#8FA3B1",
+                  lineHeight: 1.85,
+                  maxWidth: 440,
+                  marginBottom: "2.5rem",
+                }}
               >
-                Connect with Jake on LinkedIn <span aria-hidden="true">↗</span>
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
+                {v.description}
+              </p>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <span
+                  style={{
+                    fontFamily: "'Courier New', Courier, monospace",
+                    fontSize: 10,
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                    color: statusColor(v.status),
+                    border: `1px solid ${statusColor(v.status)}`,
+                    padding: "3px 10px",
+                  }}
+                >
+                  {v.status}
+                </span>
+                {v.url && (
+                  <span
+                    style={{
+                      fontFamily: "'Courier New', Courier, monospace",
+                      fontSize: 11,
+                      color: "#4B5563",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    {v.url}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
-      </main>
-      <footer className="site-footer">
-        <div className="site-shell">
-          <div className="footer-main">
-            <a className="wordmark" href="#top">
-              Operon Group
-            </a>
-            <p>Information. Decisions. Execution.</p>
-            <a className="back-top" href="#top">
-              Back to top <span aria-hidden="true">↑</span>
-            </a>
-          </div>
-          <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} The Operon Group LLC.</p>
-            <nav aria-label="Footer navigation">
-              <a href="#pathways">Pathways</a>
-              <a href="#founder">Founder</a>
-              <a href="/privacy">Privacy policy</a>
-            </nav>
+
+            {/* Right — nav arrows + all names */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                paddingTop: "2.5rem",
+                borderTop: "1px solid #2E3545",
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {ALL_VENTURES.map((venture, i) => (
+                  <button
+                    key={venture.name}
+                    onClick={() => goTo(i)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      padding: "0.6rem 0",
+                      borderBottom: "1px solid #2E3545",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      transition: "all 180ms ease-out",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "Georgia, 'Times New Roman', serif",
+                        fontSize: i === active ? 17 : 14,
+                        color: i === active ? "#F2EDE4" : "#4B5563",
+                        transition: "all 180ms ease-out",
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      {venture.name}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "'Courier New', Courier, monospace",
+                        fontSize: 9,
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase",
+                        color: statusColor(venture.status),
+                        opacity: i === active ? 1 : 0.4,
+                      }}
+                    >
+                      {venture.status}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", marginTop: "2rem" }}>
+                <button
+                  onClick={() => goTo((active - 1 + ALL_VENTURES.length) % ALL_VENTURES.length)}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    border: "1px solid #2E3545",
+                    backgroundColor: "transparent",
+                    color: "#8FA3B1",
+                    fontSize: 18,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 180ms ease-out",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#8C6A3F"; (e.currentTarget as HTMLButtonElement).style.color = "#8C6A3F"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#2E3545"; (e.currentTarget as HTMLButtonElement).style.color = "#8FA3B1"; }}
+                  aria-label="Previous venture"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => goTo((active + 1) % ALL_VENTURES.length)}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    border: "1px solid #2E3545",
+                    backgroundColor: "transparent",
+                    color: "#8FA3B1",
+                    fontSize: 18,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 180ms ease-out",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#8C6A3F"; (e.currentTarget as HTMLButtonElement).style.color = "#8C6A3F"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#2E3545"; (e.currentTarget as HTMLButtonElement).style.color = "#8FA3B1"; }}
+                  aria-label="Next venture"
+                >
+                  →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </footer>
+
+        {/* Ticker */}
+        <div
+          style={{
+            borderTop: "1px solid #2E3545",
+            borderBottom: "1px solid #2E3545",
+            overflow: "hidden",
+            padding: "0.85rem 0",
+            marginTop: "2rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              gap: "3rem",
+              animation: "ticker-scroll 28s linear infinite",
+              width: "max-content",
+            }}
+          >
+            {tickerItems.map((item, i) => (
+              <span
+                key={i}
+                style={{
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontSize: 11,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#4B5563",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                }}
+              >
+                {item.name}
+                <span style={{ color: "#2E3545" }}>·</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+      <BronzeDivider />
     </>
+  );
+}
+
+// ── Leadership ────────────────────────────────────────────────
+function Leadership() {
+  return (
+    <>
+      <section
+        id="leadership"
+        style={{ backgroundColor: "#F2EDE4", padding: "7rem 0" }}
+      >
+        <div
+          style={{ maxWidth: 1440, margin: "0 auto" }}
+          className="px-6 md:px-16"
+        >
+          <div style={{ marginBottom: "4rem" }}>
+            <h2
+              className="reveal"
+              style={{
+                fontFamily: "Georgia, 'Times New Roman', serif",
+                fontSize: "clamp(28px, 3.5vw, 48px)",
+                fontWeight: "normal",
+                color: "#1C2333",
+                lineHeight: 1.15,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Leadership
+            </h2>
+          </div>
+
+          {/* Jake Weber card */}
+          <div
+            style={{
+              backgroundColor: "#EDE8DF",
+              border: "1px solid #D9D3C8",
+              padding: "3rem",
+              display: "flex",
+              gap: "2.5rem",
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+            }}
+          >
+            {/* Portrait */}
+            <div
+              className="reveal"
+              style={{
+                width: 180,
+                height: 220,
+                flexShrink: 0,
+                overflow: "hidden",
+                border: "1px solid #D9D3C8",
+                position: "relative",
+              }}
+            >
+              <Image
+                src="/jake-weber.png"
+                alt="Jake Weber — Founder & CEO, Operon Group"
+                fill
+                style={{ objectFit: "cover", objectPosition: "center 10%" }}
+                sizes="180px"
+                priority
+              />
+            </div>
+
+            {/* Bio */}
+            <div
+              style={{
+                flex: 1,
+                minWidth: 260,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                <div
+                  className="reveal reveal-delay-1"
+                  style={{
+                    fontFamily: "'Courier New', Courier, monospace",
+                    fontSize: 11,
+                    letterSpacing: "0.18em",
+                    color: "#8FA3B1",
+                    textTransform: "uppercase",
+                    marginBottom: "0.35rem",
+                  }}
+                >
+                  Founder & CEO
+                </div>
+                <div
+                  className="reveal reveal-delay-2"
+                  style={{
+                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontSize: 28,
+                    color: "#1C2333",
+                    letterSpacing: "-0.01em",
+                    marginBottom: "1.25rem",
+                  }}
+                >
+                  Jake Weber
+                </div>
+                <p
+                  className="reveal reveal-delay-3"
+                  style={{
+                    fontFamily: "'Courier New', Courier, monospace",
+                    fontSize: 13,
+                    color: "#6B7280",
+                    lineHeight: 1.9,
+                    marginBottom: "2rem",
+                    maxWidth: 520,
+                  }}
+                >
+                  Operator and founder. Built revenue-generating businesses across sales, AI, and technology. Operon is the infrastructure layer for what gets built next.
+                </p>
+              </div>
+
+              <div>
+                <div
+                  className="reveal reveal-delay-4"
+                  style={{
+                    display: "flex",
+                    gap: "2.5rem",
+                    borderTop: "1px solid #D9D3C8",
+                    paddingTop: "1.5rem",
+                    marginTop: "2rem",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  {[
+                    { label: "Ventures Led", value: "6" },
+                    { label: "Years Building", value: "10+" },
+                    { label: "Est.", value: "2026" },
+                  ].map((stat) => (
+                    <div key={stat.label}>
+                      <div
+                        style={{
+                          fontFamily: "Georgia, 'Times New Roman', serif",
+                          fontSize: 26,
+                          color: "#1C2333",
+                        }}
+                      >
+                        {stat.value}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: "'Courier New', Courier, monospace",
+                          fontSize: 11,
+                          letterSpacing: "0.12em",
+                          color: "#8FA3B1",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {stat.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <a
+                  className="reveal reveal-delay-5"
+                  href="https://www.linkedin.com/in/jake-weber-b03625135/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontFamily: "'Courier New', Courier, monospace",
+                    fontSize: 11,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "#8FA3B1",
+                    textDecoration: "none",
+                    borderBottom: "1px solid #8FA3B1",
+                    paddingBottom: 2,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                  </svg>
+                  LinkedIn — Jake Weber
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <BronzeDivider />
+    </>
+  );
+}
+
+// ── Footer ────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer
+      style={{
+        backgroundColor: "#0F1520",
+        borderTop: "1px solid #2E3545",
+        padding: "2rem 0",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1440,
+          margin: "0 auto",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "1rem",
+        }}
+        className="px-6 md:px-16"
+      >
+        <div style={{ fontFamily: "'Courier New', Courier, monospace", fontSize: 11, letterSpacing: "0.1em", color: "#4B5563" }}>
+          © 2026 The Operon Group LLC. All rights reserved.
+        </div>
+        <a
+          href="https://www.linkedin.com/in/jake-weber-b03625135/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontFamily: "'Courier New', Courier, monospace",
+            fontSize: 11,
+            letterSpacing: "0.1em",
+            color: "#4B5563",
+            textDecoration: "none",
+            transition: "color 150ms ease-out",
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F2EDE4")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#4B5563")}
+        >
+          LinkedIn
+        </a>
+      </div>
+    </footer>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────
+export default function Page() {
+  useReveal();
+
+  return (
+    <div style={{ backgroundColor: "#F2EDE4", minHeight: "100vh" }}>
+      <Nav />
+      <Hero />
+      <WhatWeDo />
+      <DefinitionStrip />
+      <VenturesTicker />
+      <Leadership />
+      <Footer />
+    </div>
   );
 }
