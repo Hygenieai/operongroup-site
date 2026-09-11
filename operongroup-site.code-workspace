@@ -1,0 +1,47 @@
+{
+  "folders": [{ "path": "." }],
+  "settings": {
+    "npm.packageManager": "pnpm",
+    "typescript.tsdk": "node_modules/typescript/lib"
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "install",
+        "type": "shell",
+        "command": "npx",
+        "args": ["--yes", "pnpm@11.19.0", "install", "--frozen-lockfile"],
+        "options": { "cwd": "${workspaceFolder}" },
+        "problemMatcher": []
+      },
+      {
+        "label": "dev",
+        "type": "shell",
+        "command": "npx",
+        "args": ["--yes", "pnpm@11.19.0", "dev", "--hostname", "127.0.0.1", "--port", "${input:devPort}"],
+        "options": { "cwd": "${workspaceFolder}" },
+        "isBackground": true,
+        "problemMatcher": [],
+        "presentation": { "panel": "dedicated", "reveal": "always" }
+      },
+      {
+        "label": "check",
+        "type": "shell",
+        "command": "npx",
+        "args": ["--yes", "pnpm@11.19.0", "check"],
+        "options": { "cwd": "${workspaceFolder}" },
+        "group": { "kind": "build", "isDefault": true },
+        "problemMatcher": "$tsc"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "devPort",
+        "type": "promptString",
+        "description": "Available local port (leave other projects' servers running)",
+        "default": "3000"
+      }
+    ]
+  }
+}
