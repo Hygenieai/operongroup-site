@@ -1,23 +1,19 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-// Keep this prompt handy for commits/pushes:
-// git add .; git commit -m "update"; git push
-
 export const metadata: Metadata = {
-  title: "Operon Group — Venture & Operational Infrastructure",
+  title: "Operon Group — Information. Decisions. Execution.",
   description:
-    "Operon Group is a venture and operational infrastructure company that scales execution and revenue.",
+    "Operon Group turns fragmented information into informed decisions and coordinated execution across commercial real estate, technology, and business operations.",
   openGraph: {
     title: "Operon Group",
-    description: "A venture and operational infrastructure company that scales execution and revenue.",
+    description:
+      "Informed decisions and coordinated execution across commercial real estate, technology, and business operations.",
     url: "https://theoperongroup.com",
     siteName: "Operon Group",
     type: "website",
   },
-  icons: {
-    icon: "/favicon.svg",
-  },
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
@@ -27,9 +23,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-      </head>
       <body>{children}</body>
     </html>
   );
